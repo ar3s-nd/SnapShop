@@ -12,7 +12,7 @@ Create a basic E-mart app with the following functionalities:
 5. **Cart:** Simple cart functionality.
 6. **Profile:** User profile page.
 
-## Installation and Deployment
+## Installation
 
 1. Download the apk file (https://github.com/ar3s-nd/SnapShop/blob/main/app-release.apk) in your android device.
 2. Install the apk from the downloads folder.
