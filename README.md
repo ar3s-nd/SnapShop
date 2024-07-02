@@ -1,7 +1,8 @@
 
 # SnapShop
   
-🎬 Demo at: [Youtube](https://www.youtube.com/watch?v=5Do4F-eDDLs) or at [Youtube]
+🎬 Watch video at: [Youtube](https://youtu.be/jvaBx38yvQA)
+
 ## Problem Statement
 Create a basic E-mart app with the following functionalities:
 
