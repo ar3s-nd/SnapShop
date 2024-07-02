@@ -43,7 +43,9 @@ class _ScrollableImagesState extends State<ScrollableImages> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(30),
                     child: Image.asset(
-                      widget.imagePaths![index],
+                      widget.imagePaths != null
+                      ? widget.imagePaths![index]
+                      : 'lib/images/img_not_found.jpg',
                       fit: BoxFit.contain,
                     ),
                   ),

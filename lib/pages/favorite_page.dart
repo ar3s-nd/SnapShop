@@ -1,6 +1,8 @@
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter/material.dart";
 import "package:flutter_slidable/flutter_slidable.dart";
-import "package:project1/providers/favorite_provider.dart";
+import "package:project1/models/products.dart";
+import "package:project1/services/user_services.dart";
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
@@ -10,12 +12,50 @@ class FavoritePage extends StatefulWidget {
 }
 
 class _FavoritePageState extends State<FavoritePage> {
+
+  final UserService _userService = UserService();
+  List<Product> finalList = [];
+  
+  @override
+  void initState() {
+    super.initState();
+    _fetchFavoriteItems();
+  }
+
+  Future<List<Product>> fetchProductsByIds(List<String> ids) async {
+    List<Product> products = [];
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('Product')
+          .where(FieldPath.documentId, whereIn: ids)
+          .get();
+
+      for (var doc in querySnapshot.docs) {
+        products.add(Product.fromFirestore(doc));
+      }
+    } catch (e) {
+      print("Error fetching products: $e");
+    }
+    return products;
+  }
+
+  Future<void> _fetchFavoriteItems() async {
+    List<String> favoriteItemsIds = await _userService.fetchFavorites();
+    List<Product> products = await fetchProductsByIds(favoriteItemsIds);
+    if (mounted) {
+      setState(() {
+        finalList = products;
+      });
+    }
+  }
+
+  Future<void> _removeFromFavorite(Product product) async {
+    await _userService.removeFromFavorites(product.id);
+    _fetchFavoriteItems();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // favorite provider to save the item to favorites list 
-    final provider = FavoriteProvider.of(context);
-    final finalList = provider.favorites;
-
     return Scaffold(
       // tell user list is empty if so else show the item in the list
       body: finalList.isNotEmpty
@@ -50,8 +90,11 @@ class _FavoritePageState extends State<FavoritePage> {
                         // slidable delete button
                         SlidableAction(
                           onPressed: (context) {
-                            finalList.removeAt(index);
-                            setState(() {});
+                            setState(() {
+                              _removeFromFavorite(finalList[index]);
+                              finalList.removeAt(index);
+                              _fetchFavoriteItems();
+                            });
                           },
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
@@ -83,7 +126,7 @@ class _FavoritePageState extends State<FavoritePage> {
                         leading: CircleAvatar(
                           radius: 28,
                           backgroundImage: AssetImage(
-                            finalList[index].image![0],
+                            finalList[index].image[0],
                           ),
                           backgroundColor: Colors.deepPurple[100],
                         ),

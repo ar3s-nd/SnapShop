@@ -1,6 +1,7 @@
- import 'package:flutter/material.dart';
-import 'package:project1/models/my_products.dart';
+import 'package:flutter/material.dart';
+import 'package:project1/models/products.dart';
 import 'package:project1/pages/details_page.dart';
+import 'package:project1/services/product_services.dart';
 import 'package:project1/widgets/product_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,16 +14,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int isSelected = 0;
 
-  // list containing the function list to build the product category page  
-  final dynamic productsList = [
-    _buildAllProducts(),
-    _buildMobiles(),
-    _buildLaptops(),
-    _buildJackets(),
-    _buildAnimeTShirts(),
-    _buildSneakers()
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -33,15 +24,14 @@ class _HomePageState extends State<HomePage> {
           const Text(
             "Our Products",
             style: TextStyle(
-              fontSize: 27, 
+              fontSize: 27,
               fontWeight: FontWeight.bold,
-            )
+            ),
           ),
-          
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // build all the products categories
                 _buildProductCategory(index: 0, name: "All Products"),
@@ -50,12 +40,12 @@ class _HomePageState extends State<HomePage> {
                 _buildProductCategory(index: 3, name: "Jackets"),
                 _buildProductCategory(index: 4, name: "T-shirts"),
                 _buildProductCategory(index: 5, name: "Sneakers"),
-              ]
+              ],
             ),
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: productsList[isSelected],         
+            child: _buildProductCategoryPage(isSelected),
           ),
         ],
       ),
@@ -63,177 +53,172 @@ class _HomePageState extends State<HomePage> {
   }
 
   // build product category selector
-  _buildProductCategory({required int index, required String name}) => 
-  GestureDetector(
-    onTap: () => setState(() {
-      isSelected = index;
-    }),
-    child: Container(
-      width: 100,
-      height: 40,
-      margin: const EdgeInsets.only(top:10, right:10),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: isSelected == index? Colors.deepPurple: Colors.deepPurple[300], 
-        borderRadius: BorderRadius.circular(8),
+  _buildProductCategory({required int index, required String name}) => GestureDetector(
+        onTap: () => setState(() {
+          isSelected = index;
+        }),
+        child: Container(
+          width: 100,
+          height: 40,
+          margin: const EdgeInsets.only(top: 10, right: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected == index ? Colors.deepPurple : Colors.deepPurple[300],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(name, style: const TextStyle(color: Colors.white)),
+        ),
+      );
+
+  Widget _buildProductCategoryPage(int index) {
+    switch (index) {
+      case 0:
+        return _buildAllProducts();
+      case 1:
+        return _buildMobiles();
+      case 2:
+        return _buildLaptops();
+      case 3:
+        return _buildJackets();
+      case 4:
+        return _buildAnimeTShirts();
+      case 5:
+        return _buildSneakers();
+      default:
+        return Container();
+    }
+  }
+
+  Widget _buildAllProducts() {
+    return FutureBuilder<List<Product>>(
+      future: ProductService().fetchProducts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No products found'));
+        } else {
+          final allProducts = snapshot.data!;
+          return _buildGridView(allProducts);
+        }
+      },
+    );
+  }
+
+  Widget _buildJackets() {
+    return FutureBuilder<List<Product>>(
+      future: ProductService().fetchProductsByType('Jacket'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No jackets found'));
+        } else {
+          final jackets = snapshot.data!;
+          return _buildGridView(jackets);
+        }
+      },
+    );
+  }
+
+  Widget _buildSneakers() {
+    return FutureBuilder<List<Product>>(
+      future: ProductService().fetchProductsByType('Sneaker'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No sneakers found'));
+        } else {
+          final sneakers = snapshot.data!;
+          return _buildGridView(sneakers);
+        }
+      },
+    );
+  }
+
+  Widget _buildMobiles() {
+    return FutureBuilder<List<Product>>(
+      future: ProductService().fetchProductsByType('Mobile'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No mobiles found'));
+        } else {
+          final mobiles = snapshot.data!;
+          return _buildGridView(mobiles);
+        }
+      },
+    );
+  }
+
+  Widget _buildLaptops() {
+    return FutureBuilder<List<Product>>(
+      future: ProductService().fetchProductsByType('Laptop'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No laptops found'));
+        } else {
+          final laptops = snapshot.data!;
+          return _buildGridView(laptops);
+        }
+      },
+    );
+  }
+
+  Widget _buildAnimeTShirts() {
+    return FutureBuilder<List<Product>>(
+      future: ProductService().fetchProductsByType('Anime T-shirt'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No T-shirts found'));
+        } else {
+          final tShirts = snapshot.data!;
+          return _buildGridView(tShirts);
+        }
+      },
+    );
+  }
+
+  Widget _buildGridView(List<Product> products) {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: (100 / 140),
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
-      child: Text(
-        name,
-        style: const TextStyle(
-          color: Colors.white
-          )
-        )
-    ),
-  );
+      scrollDirection: Axis.vertical,
+      itemCount: products.length,
+      itemBuilder: (context, index) {
+        final product = products[index];
+        return GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailsPage(product: product),
+            ),
+          ),
+          child: ProductCard(product: product),
+        );
+      },
+    );
+  }
 }
-
-  // show product cards for each category
-_buildAllProducts() => GridView.builder(
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: (100/140),
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12
-  ), 
-  scrollDirection: Axis.vertical,
-  itemCount: MyProducts.allProducts.length,
-  itemBuilder: (context, index){
-    final allProducts = MyProducts.allProducts[index];
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailsPage(product: allProducts)
-        )
-      ),
-      child: ProductCard(
-        product: allProducts
-      )
-    );
-  }
-);
-
-_buildJackets() => GridView.builder(
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: (100/140),
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12
-  ), 
-  scrollDirection: Axis.vertical,
-  itemCount: MyProducts.jacketList.length,
-  itemBuilder: (context, index){
-    final jacketList = MyProducts.jacketList[index];
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailsPage(product: jacketList)
-        )
-      ),
-      child: ProductCard(
-        product: jacketList
-      )
-    );
-  }
-);
-
-_buildSneakers() => GridView.builder(
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: (100/140),
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12
-  ), 
-  scrollDirection: Axis.vertical,
-  itemCount: MyProducts.sneakersList.length,
-  itemBuilder: (context, index){
-    final sneakersList = MyProducts.sneakersList[index];
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailsPage(product: sneakersList)
-        )
-      ),
-      child: ProductCard(
-        product: sneakersList
-      )
-    );
-  }
-);
-
-_buildMobiles() => GridView.builder(
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: (100/140),
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12
-  ), 
-  scrollDirection: Axis.vertical,
-  itemCount: MyProducts.mobilesList.length,
-  itemBuilder: (context, index){
-    final mobilesList = MyProducts.mobilesList[index];
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailsPage(product: mobilesList)
-        )
-      ),
-      child: ProductCard(
-        product: mobilesList
-      )
-    );
-  }
-);
-
-_buildLaptops() => GridView.builder(
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: (100/140),
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12
-  ), 
-  scrollDirection: Axis.vertical,
-  itemCount: MyProducts.laptopList.length,
-  itemBuilder: (context, index){
-    final laptopList = MyProducts.laptopList[index];
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailsPage(product: laptopList)
-        )
-      ),
-      child: ProductCard(
-        product: laptopList
-      )
-    );
-  }
-);
-
-_buildAnimeTShirts() => GridView.builder(
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: (100/140),
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12
-  ), 
-  scrollDirection: Axis.vertical,
-  itemCount: MyProducts.animeTShirtList.length,
-  itemBuilder: (context, index){
-    final animeTShirtList = MyProducts.animeTShirtList[index];
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailsPage(product: animeTShirtList)
-        )
-      ),
-      child: ProductCard(
-        product: animeTShirtList
-      )
-    );
-  }
-);

@@ -5,9 +5,7 @@ import "package:flutter/material.dart";
 import "package:project1/components/login_or_register_google_button.dart";
 import "package:project1/components/login_or_register_button.dart";
 import "package:project1/components/login_page_textfield.dart";
-import "package:project1/providers/user_provider.dart";
-import "package:project1/services/auth_services.dart";
-import "package:provider/provider.dart";
+import "package:project1/services/user_services.dart";
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -36,37 +34,41 @@ class _RegisterPageState extends State<RegisterPage> {
     // try creating the user
     try {
       if(passwordController.text == confirmPasswordController.text){
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text, 
           password: passwordController.text
         );
 
-        // Set the user info in the provider
-        // ignore: use_build_context_synchronously
-        Provider.of<UserProvider>(context, listen: false).saveUser(
-          usernameController.text, 
-          emailController.text
-        );
+        // create a map of the user details
+        Map<String, dynamic> userInfoMap = {
+          'Username': usernameController.text,
+          'Email': emailController.text,
+          'Password': passwordController.text,
+          'location': 'not-defined',
+          "cart": [],
+          'saved': [],
+          'total': '0.0'
+        };
 
         // pop the loading circle
-        // ignore: use_build_context_synchronously
         Navigator.pop(context);
+
+        // try adding the user to the database
+        await UserService().addUserDetails(userInfoMap, result.user!.uid);
       } else {
         // pop the loading circle
-        // ignore: use_build_context_synchronously
         Navigator.pop(context);
-
+        
         // show error message
         showErrorMessage('Passwords don\'t match.');
       }
     } on FirebaseAuthException catch(e){
       // pop the loading circle
-      // ignore: use_build_context_synchronously
       Navigator.pop(context);
-
+      
       // show error message
       showErrorMessage(e.code);
-    }
+    } 
   }
 
   void showErrorMessage(String errorMessage){
@@ -191,7 +193,7 @@ class _RegisterPageState extends State<RegisterPage> {
             
                 // google button
                 SizedBox(height: 15),
-                GoogleSignInButton(onPressed: () => AuthService().signInWithGoogle()),
+                GoogleSignInButton(),
             
                 // Already have an account
                 SizedBox(height: 15),

@@ -2,10 +2,12 @@
 
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
+import "package:flutter/widgets.dart";
+import "package:flutter_svg/svg.dart";
 import "package:project1/components/login_or_register_google_button.dart";
 import "package:project1/components/login_or_register_button.dart";
 import "package:project1/components/login_page_textfield.dart";
-import "package:project1/services/auth_services.dart";
+import "package:project1/components/profile_page_textfield.dart";
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -120,16 +122,19 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 
                 // forgot password
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.grey.shade300),
-                      ),
-                    ],
+                GestureDetector(
+                  onTap: forgotPassword,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: Colors.grey.shade300),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 
@@ -173,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
             
                 // google button
                 SizedBox(height: 30),
-                GoogleSignInButton(onPressed: () => AuthService().signInWithGoogle()),
+                GoogleSignInButton(),
             
                 // register now
                 SizedBox(height: 30),
@@ -201,4 +206,78 @@ class _LoginPageState extends State<LoginPage> {
       )
     );
   }
+
+  Future forgotPassword() => showDialog(context: context, builder: (context) => SingleChildScrollView(
+    child: AlertDialog(
+      content: Container(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: SvgPicture.asset(
+                    'lib/images/icons/cross_icon.svg',
+                  ),
+                  onPressed: () {
+                    if(Navigator.canPop(context)){
+                      Navigator.pop(context);
+                    }
+                  }
+                ),
+                SizedBox(width: 20),
+                Text(
+                  'Forgot Password',
+                  style: TextStyle(
+                    color: Colors.deepPurple,
+                    fontSize: 20
+                  )
+                ),
+              ],
+            ),
+            SizedBox(height: 40,),
+            Text(
+              'Enter your email',
+              style: TextStyle(
+                color: Colors.deepPurple,
+                fontSize: 16,
+              ),
+            ),
+            ProfilePageTextfield(controller: emailController),
+            
+            SizedBox(height:50),
+            ElevatedButton(
+              onPressed: () {
+                FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text).then((_) {
+                  if(Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                  showErrorMessage("Link has been sent to your email for password reset");
+                }).catchError((error) {
+                    showErrorMessage(error.message.toString());
+                });
+              },
+              style: ButtonStyle(
+                overlayColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.pressed)) {
+                      return Color.fromARGB(255, 47, 143, 207).withOpacity(0.8);
+                    }
+                    return Colors.transparent;
+                  },
+                ),
+              ),
+              child: const Text(
+                'Send email',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold
+                ),
+              ) 
+            ),
+          ],
+        )
+      ),
+    ),
+  ));
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/svg.dart';
@@ -70,6 +71,10 @@ class DeleteAccountButton extends StatelessWidget {
         try {
           // Delete user account
           await user.delete();
+          FirebaseFirestore.instance.collection("User").doc(user.uid).delete().then(
+            (doc) => print("Document deleted"),
+            onError: (e) => print("Error updating document $e"),
+          );
 
           // Navigate to a logged out state or home page
           // ignore: use_build_context_synchronously

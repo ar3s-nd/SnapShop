@@ -1,25 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:project1/services/user_services.dart';
 import 'package:project1/widgets/colour_circle.dart';
 import 'package:project1/models/products.dart';
 import 'package:project1/pages/cart_page.dart';
-import 'package:project1/providers/cart_provider.dart';
-import 'package:project1/providers/favorite_provider.dart';
 import 'package:project1/widgets/available_option.dart';
 import 'package:project1/widgets/scrollable_images.dart';
 
-class DetailsPage extends StatelessWidget {
+class DetailsPage extends StatefulWidget {
   final Product product; 
   const DetailsPage({super.key, required this.product});
 
   @override
-  Widget build(BuildContext context) {
-    // cart provider to add item to cart
-    final cartProvider = CartProvider.of(context);
-    // favorites provider to save the items if the item is out of stock 
-    final favoriteProvider = FavoriteProvider.of(context);
-    final favoriteList = favoriteProvider.favorites;
+  State<DetailsPage> createState() => _DetailsPageState();
+}
 
+class _DetailsPageState extends State<DetailsPage> {
+  bool isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+  }
+
+  Future<void> _checkFavoriteStatus() async {
+    bool exists = await UserService().isExistInFavorite(widget.product.id);
+    setState(() {
+      isFavorite = exists;
+    });
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (isFavorite) {
+      await UserService().removeFromFavorites(widget.product.id);
+    } else {
+      await UserService().addToFavorites(widget.product.id);
+    }
+    _checkFavoriteStatus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.deepPurple[100],
 
@@ -66,7 +89,7 @@ class DetailsPage extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(30),
                           // scrollable images
-                          child: ScrollableImages(imagePaths: product.image),
+                          child: ScrollableImages(imagePaths: widget.product.image),
                         )
                       )
                     ],
@@ -92,7 +115,7 @@ class DetailsPage extends StatelessWidget {
                           children: [
                             // product name
                             Text(
-                              product.name,
+                              widget.product.name,
                               style: const TextStyle(
                                 fontSize: 21,
                                 fontWeight: FontWeight.bold,
@@ -102,7 +125,7 @@ class DetailsPage extends StatelessWidget {
                             // product price
                             const SizedBox(width:20),
                             Text(
-                              '₹${product.price}',
+                              '₹${widget.product.price}',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold
@@ -114,7 +137,7 @@ class DetailsPage extends StatelessWidget {
                         // description
                         const SizedBox(height: 20),
                         Text(
-                          product.description,
+                          widget.product.description,
                           textAlign: TextAlign.justify,
                           style: const TextStyle(
                             fontSize: 15,
@@ -140,7 +163,7 @@ class DetailsPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          child:(product.type == 'Mobile') // product is of type 'Mobile'
+                          child:(widget.product.type == 'Mobile') // product is of type 'Mobile'
                             ? const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -149,7 +172,7 @@ class DetailsPage extends StatelessWidget {
                                 AvailableOptions(size: '8GB, 256GB'),
                               ],
                             )
-                            : (product.type == 'Laptop') // product is of type 'Laptop'
+                            : (widget.product.type == 'Laptop') // product is of type 'Laptop'
                             ? const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -183,7 +206,7 @@ class DetailsPage extends StatelessWidget {
                         ),
                           
                         const SizedBox(height: 8),
-                        (product.type == 'Mobile') // product is of type 'Mobile'
+                        (widget.product.type == 'Mobile') // product is of type 'Mobile'
                         ? Row(
                           children: [
                             const ColourCircle(color: Colors.black),
@@ -191,7 +214,7 @@ class DetailsPage extends StatelessWidget {
                             const ColourCircle(color: Colors.cyan)
                           ],
                         )
-                        : (product.type == 'Laptop') // product is of type 'Laptop'
+                        : (widget.product.type == 'Laptop') // product is of type 'Laptop'
                         ? Row(
                           children: [
                             ColourCircle(color: Colors.blue[800]),
@@ -225,12 +248,12 @@ class DetailsPage extends StatelessWidget {
               
                               // show availblility
                               Text(
-                                (product.category == 'Out of Stock')
-                                ? product.category
+                                (widget.product.category == 'Out of Stock')
+                                ? widget.product.category
                                 : 'In Stock',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: product.category == 'Out of Stock'
+                                  color: widget.product.category == 'Out of Stock'
                                   ? const Color.fromARGB(255, 255, 0, 0) : Color.fromARGB(255, 212, 103, 13),
                                   fontSize: 18
                                 )
@@ -269,19 +292,19 @@ class DetailsPage extends StatelessWidget {
             children: [
               // price
               Text(
-                '₹${product.price}',
+                '₹${widget.product.price}',
                 style: const TextStyle(
                   fontSize: 30,
                   color: Colors.white,
                   fontWeight: FontWeight.bold
                 ),
               ),
-              // cart or sace button according to availability of the item (in stock or not)
+              // cart or save button according to availability of the item (in stock or not)
               ElevatedButton.icon(
                 onPressed: () {
-                  if(product.category != 'Out of Stock'){ // item is in stock then show cart button and add to cart if pressed
-                    product.quantity = 1;
-                    cartProvider.toggleProduct(product);
+                  if(widget.product.category != 'Out of Stock'){ // item is in stock then show cart button and add to cart if pressed
+                    widget.product.quantity = 1;
+                    UserService().addToCart(widget.product); 
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -289,7 +312,7 @@ class DetailsPage extends StatelessWidget {
                       )
                     );
                   } else { // if item is out of stock add to saved list
-                    favoriteProvider.toggleFavorite(product);
+                    _toggleFavorite();
                   }
                 },
                 style: ButtonStyle(
@@ -302,23 +325,23 @@ class DetailsPage extends StatelessWidget {
                     },
                   ),
                 ),
-                icon: (product.category != 'Out of Stock') 
+                icon: (widget.product.category != 'Out of Stock') 
                   ? const ImageIcon(
                     AssetImage("lib/images/icons/cart_it.png"),
                     color: Colors.deepPurple,
                     size: 25,
                   ) : ImageIcon(
                         AssetImage(
-                          favoriteList.contains(product)
+                          isFavorite
                           ? 'lib/images/icons/favorite_icon/favorite_selected.png'
                           : 'lib/images/icons/favorite_icon/favorite_unselected.png'
                         ),
                         color: Colors.red,
                       ),
                 label: Text(
-                  product.category != 'Out of Stock' 
+                  widget.product.category != 'Out of Stock' 
                   ? 'Cart it!'
-                  : favoriteList.contains(product)
+                  : isFavorite
                     ? ' Saved!'
                     : 'Save it!',
                   style: const TextStyle(

@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:project1/providers/cart_provider.dart';
+import 'package:project1/models/products.dart';
+import 'package:project1/services/user_services.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -10,24 +13,89 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  final UserService _userService = UserService();
+  final CollectionReference userCollection = FirebaseFirestore.instance.collection('User');
+  List<Product> finalList = [];
+  String location = 'not-defined';
+
+  getAddress() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if(user != null){
+      DocumentSnapshot doc = await userCollection.doc(user.uid).get();
+      location = doc['location'];
+    }
+    return location;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCartItems();
+    getAddress();
+  }
+
+  Future<void> _fetchCartItems() async {
+    List<Product> cartItems = await _userService.fetchCart();
+    if(mounted){
+      setState(() {
+        finalList = cartItems;
+      });
+    }
+  }
+
+  Future<void> _removeFromCart(Product product) async {
+    await _userService.removeFromCart(product);
+    _fetchCartItems();
+  }
+
+  incrementQuantity(int index) async {
+    finalList[index].quantity++;
+    await _updateCartInFirestore();
+  }
+
+  decrementQuantity(int index) async {
+    finalList[index].quantity--;
+    await _updateCartInFirestore();
+  }
+
+  Future<void> _updateCartInFirestore() async {
+    List<Map<String, dynamic>> cart = finalList.map((product) => product.toFirestore()).toList();
+    await FirebaseFirestore.instance.collection('User').doc(FirebaseAuth.instance.currentUser!.uid).update({'cart': cart});
+  }
+
+  updateTotal(double total) async {
+    await FirebaseFirestore.instance.collection('User').doc(FirebaseAuth.instance.currentUser!.uid).update({'total': total.toString()});
+  }
+
+  // get total price of all items in the cart
+  getTotalPrice() {
+    double total = 0;
+    for(Product item in finalList){
+      total += item.price * item.quantity;
+    }
+    updateTotal(total);
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // provider for cart contents
-    final provider = CartProvider.of(context);
-    final finalList = provider.cart;
-
     // function to build the increment and decrement operations for the product quantity
     buildPoductQuantity(IconData icon, int index) {
       return GestureDetector(
         onTap: () {
-          setState(() {
-            icon == Icons.add
-                ? provider.incrementQuantity(index)
-                : provider.decrementQuantity(index); 
-            if(finalList[index].quantity == 0){
-              finalList.removeAt(index);
-            }
-          });
+          if(mounted){
+            setState(() {
+              icon == Icons.add
+                ? incrementQuantity(index)
+                : decrementQuantity(index); 
+              if(finalList[index].quantity <= 0){
+                _removeFromCart(finalList[index]);
+                finalList.removeAt(index);
+                _fetchCartItems();
+                getTotalPrice();
+              }
+            });
+          }
         },
         child: Container(
           decoration: BoxDecoration(
@@ -75,8 +143,14 @@ class _CartPageState extends State<CartPage> {
                       children: [
                         SlidableAction(
                           onPressed: (context) {
-                            finalList.removeAt(index);
-                            setState(() {});
+                            if(mounted){
+                              setState(() {
+                                _removeFromCart(finalList[index]);
+                                finalList.removeAt(index);
+                                _fetchCartItems();
+                                getTotalPrice();
+                              });
+                            }
                           },
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
@@ -111,7 +185,8 @@ class _CartPageState extends State<CartPage> {
                         leading: CircleAvatar(
                           radius: 28,
                           backgroundImage: AssetImage(
-                            finalList[index].image![0],
+                            finalList[index].image.isNotEmpty?
+                            finalList[index].image[0]: 'lib/images/img_not_found.jpg',
                           ),
                           backgroundColor: Colors.deepPurple[100],
                         ),
@@ -166,9 +241,9 @@ class _CartPageState extends State<CartPage> {
           
                 // show price
                 Text(
-                  '₹${provider.getTotalPrice()}',
+                  '₹${getTotalPrice()}',
                   style: TextStyle(
-                    fontSize: (provider.getTotalPrice() > 1000000)? 26: 30, 
+                    fontSize: (getTotalPrice() > 1000000)? 26: 30, 
                     fontWeight: FontWeight.bold
                   )
                 ),
@@ -179,23 +254,35 @@ class _CartPageState extends State<CartPage> {
                     showDialog(
                       context: context,
                       builder: (context) {
-                        return const AlertDialog(
+                        return AlertDialog(
                           backgroundColor: Colors.blue,
                           title: Center(
-                            child: Text(
+                            child: (location != 'not-defined')
+                            ? Text(
                               'Your order has been placed! Thank You.',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18
                               ),
+                            ): Text(
+                              'Please complete your Profile section.',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18
+                              ),
                             )
+
                           )
                         );
                       }
                     );
-                    setState(() {
-                      finalList.clear();
-                    });
+                    if(mounted && location != 'not-defined'){
+                      setState(() {
+                        finalList.clear();
+                        _updateCartInFirestore();
+                        getTotalPrice();
+                      });
+                    }
                   },
                   style: ButtonStyle(
                     overlayColor: WidgetStateProperty.resolveWith<Color>(
