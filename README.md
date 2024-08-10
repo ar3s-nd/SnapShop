@@ -138,6 +138,10 @@ Develop an e-commerce application that enables users to browse and discover prod
   </tr>
 </table>
 
+## Firestore Structure
+<img src = 'https://github.com/ar3s-nd/SnapShop/blob/main/firestore_products_collection_structure.jpg' alt = 'Products collection' height = 350 width = 650>
+<img src = 'https://github.com/ar3s-nd/SnapShop/blob/main/firestore_user_collection_structure.jpg' alt = 'Users collection' height = 350 width = 650>
+
 ## Scope for future improvements
 1. Addition of two types of users- customers and sellers. Customers are able to view and buy the products while the sellers are able to add new product directly through the app. Sellers would have to verify themselves before they can identify as a seller.
 2. Search function for customers to search for products.
