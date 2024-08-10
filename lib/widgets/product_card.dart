@@ -20,6 +20,7 @@ class _ProductCardState extends State<ProductCard> {
     _checkFavoriteStatus();
   }
 
+  // check if the product is tagged as favourite in firestore
   Future<void> _checkFavoriteStatus() async {
     bool exists = await UserService().isExistInFavorite(widget.product.id);
     if(mounted){
@@ -59,6 +60,8 @@ class _ProductCardState extends State<ProductCard> {
                     top: 8,
                     right: 8,
                   ),
+
+                  // change the image for whether the product is saved as favourites or not
                   child: Image.asset(
                     isFavorite
                         ? 'lib/images/icons/favorite_icon/favorite_selected.png'
@@ -74,6 +77,8 @@ class _ProductCardState extends State<ProductCard> {
           SizedBox(
             height: 100,
             width: 130,
+
+            // show the image of product
             child: Image.asset(
               widget.product.image.isNotEmpty
                   ? widget.product.image[0]
@@ -81,6 +86,8 @@ class _ProductCardState extends State<ProductCard> {
               fit: BoxFit.fitHeight,
             ),
           ),
+
+          // product name
           Text(
             widget.product.name,
             style: const TextStyle(
@@ -88,6 +95,8 @@ class _ProductCardState extends State<ProductCard> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
+          // product category(whether 'Trending Now', 'In Stock' or 'Out of stock')
           Text(
             widget.product.category,
             style: const TextStyle(

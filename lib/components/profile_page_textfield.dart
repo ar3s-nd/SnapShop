@@ -7,6 +7,7 @@ class ProfilePageTextfield extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // return textfield which is used in profile page for the user to update username/location. 
     return Container(
       padding: EdgeInsets.only(left: 10),
       decoration: BoxDecoration(

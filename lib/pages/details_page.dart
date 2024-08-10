@@ -24,6 +24,7 @@ class _DetailsPageState extends State<DetailsPage> {
     _checkFavoriteStatus();
   }
 
+  // check if the product is tagged as favorite in firestore
   Future<void> _checkFavoriteStatus() async {
     bool exists = await UserService().isExistInFavorite(widget.product.id);
     setState(() {
@@ -31,7 +32,7 @@ class _DetailsPageState extends State<DetailsPage> {
     });
   }
 
-  Future<void> _toggleFavorite() async {
+  Future<void> _toggleFavorite() async { // add or remove from favourites in firestore
     if (isFavorite) {
       await UserService().removeFromFavorites(widget.product.id);
     } else {
@@ -73,7 +74,7 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
               Column(
                 children: [
-                  // to show the images of the prduct
+                  // to show the scrollable images of the prduct
                   const SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -190,6 +191,7 @@ class _DetailsPageState extends State<DetailsPage> {
                               ],
                           ),
                         ),
+
                         // Available colors for the products
                         const SizedBox(height: 8),
                         const Row(
@@ -229,7 +231,7 @@ class _DetailsPageState extends State<DetailsPage> {
                           ],
                         ),
               
-                        // Availability of the product: (In or out of stock)
+                        // Availability of the product (In stock or out of stock)
                         Padding(
                           padding: const EdgeInsets.only(
                             top: 10,
@@ -271,7 +273,7 @@ class _DetailsPageState extends State<DetailsPage> {
         ),
       ),
       
-      // bar which show the proce and add to cart button
+      // bar which show the price and add to cart button
       bottomSheet: BottomAppBar(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -299,10 +301,11 @@ class _DetailsPageState extends State<DetailsPage> {
                   fontWeight: FontWeight.bold
                 ),
               ),
+
               // cart or save button according to availability of the item (in stock or not)
               ElevatedButton.icon(
                 onPressed: () {
-                  if(widget.product.category != 'Out of Stock'){ // item is in stock then show cart button and add to cart if pressed
+                  if(widget.product.category != 'Out of Stock'){ // if item is in stock then show cart button and add it to cart and got to cart page when pressed
                     widget.product.quantity = 1;
                     UserService().addToCart(widget.product); 
                     Navigator.push(
@@ -325,12 +328,12 @@ class _DetailsPageState extends State<DetailsPage> {
                     },
                   ),
                 ),
-                icon: (widget.product.category != 'Out of Stock') 
+                icon: (widget.product.category != 'Out of Stock') // if product is in stock show add to cart button
                   ? const ImageIcon(
                     AssetImage("lib/images/icons/cart_it.png"),
                     color: Colors.deepPurple,
                     size: 25,
-                  ) : ImageIcon(
+                  ) : ImageIcon( // if prduct is out of stock show button which adds it to user favourites or "saves it".
                         AssetImage(
                           isFavorite
                           ? 'lib/images/icons/favorite_icon/favorite_selected.png'

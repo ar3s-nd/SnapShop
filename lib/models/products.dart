@@ -34,6 +34,7 @@ class Product {
     );
   }
 
+  // for cart the paramater is in the form of map<string, dynamic> 
   factory Product.fromFirestoreForCart(Map<String, dynamic> data) {
     return Product(
       id: data['id'] ?? '',  
@@ -47,6 +48,7 @@ class Product {
     );
   }
 
+  // to convert the products into format used to store details in firestore
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,

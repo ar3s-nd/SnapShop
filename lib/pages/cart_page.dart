@@ -35,7 +35,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _fetchCartItems() async {
-    List<Product> cartItems = await _userService.fetchCart();
+    List<Product> cartItems = await _userService.fetchCart(); // fetch the cart from firestore database
     if(mounted){
       setState(() {
         finalList = cartItems;
@@ -44,7 +44,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _removeFromCart(Product product) async {
-    await _userService.removeFromCart(product);
+    await _userService.removeFromCart(product); 
     _fetchCartItems();
   }
 
@@ -59,11 +59,11 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _updateCartInFirestore() async {
-    List<Map<String, dynamic>> cart = finalList.map((product) => product.toFirestore()).toList();
-    await FirebaseFirestore.instance.collection('User').doc(FirebaseAuth.instance.currentUser!.uid).update({'cart': cart});
+    List<Map<String, dynamic>> cart = finalList.map((product) => product.toFirestore()).toList();  // convert the list into the format used to store details in firestore
+    await FirebaseFirestore.instance.collection('User').doc(FirebaseAuth.instance.currentUser!.uid).update({'cart': cart}); // update the firestore with the new cart data
   }
 
-  updateTotal(double total) async {
+  updateTotal(double total) async { // update the total in firestore
     await FirebaseFirestore.instance.collection('User').doc(FirebaseAuth.instance.currentUser!.uid).update({'total': total.toString()});
   }
 
@@ -191,7 +191,7 @@ class _CartPageState extends State<CartPage> {
                           backgroundColor: Colors.deepPurple[100],
                         ),
                         
-                        // to show the product quantity currentle present in the cart
+                        // to show the product quantity currently present in the cart
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -257,14 +257,14 @@ class _CartPageState extends State<CartPage> {
                         return AlertDialog(
                           backgroundColor: Colors.blue,
                           title: Center(
-                            child: (location != 'not-defined')
+                            child: (location != 'not-defined') // location was set in the profile page
                             ? Text(
                               'Your order has been placed! Thank You.',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18
                               ),
-                            ): Text(
+                            ): Text( // location was not set in the profile page
                               'Please complete your Profile section.',
                               style: TextStyle(
                                 color: Colors.white,
@@ -278,9 +278,9 @@ class _CartPageState extends State<CartPage> {
                     );
                     if(mounted && location != 'not-defined'){
                       setState(() {
-                        finalList.clear();
-                        _updateCartInFirestore();
-                        getTotalPrice();
+                        finalList.clear(); // since the location was set it will forward to the payment page(which I have not inplemented).
+                        _updateCartInFirestore(); // so the cart will be cleared for successful transaction 
+                        getTotalPrice(); // update total for the user in firestore
                       });
                     }
                   },
@@ -313,7 +313,7 @@ class _CartPageState extends State<CartPage> {
         ],
       )
         
-        // if cart is empty say that the cart is empty
+        // if cart is empty show that the cart is empty
       : Center(
         child: Padding(
             padding: const EdgeInsets.only(

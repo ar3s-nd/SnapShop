@@ -52,7 +52,7 @@ class _HomeFavOrProfPageState extends State<HomeFavOrProfPage> {
         ],
       ),
 
-      body: pages[currentIndex],
+      body: pages[currentIndex], // show home/ favourites/ profile page, default is home page 
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,

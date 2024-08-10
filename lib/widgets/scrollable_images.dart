@@ -27,6 +27,7 @@ class _ScrollableImagesState extends State<ScrollableImages> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // images
         Expanded(
           child: PageView.builder(
             controller: _pageController,
@@ -54,6 +55,8 @@ class _ScrollableImagesState extends State<ScrollableImages> {
             },
           ),
         ),
+
+        // the pagination dots.
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(widget.imagePaths!.length, (index) {

@@ -28,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
     fetchUserData();
   }
 
-  Future<void> fetchUserData() async {
+  Future<void> fetchUserData() async { // get username, email and location from firestore
     try {
       User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
@@ -64,11 +64,14 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // user image
                 SvgPicture.asset(
                   'lib/images/icons/user_image.svg',
                   color: Colors.white,
                   height: 175,
                 ),
+
+                // username
                 Text(
                   username,
                   style:const TextStyle(
@@ -77,6 +80,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: Colors.white
                   )
                 ),
+
+                // user email
                 const SizedBox(height: 10,),
                 Text(
                   email,
@@ -86,10 +91,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: Colors.white
                   )
                 ),
+
+                // show user location and edit profile button 
                 const SizedBox(height: 10,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // location
                     SizedBox(width: 60),
                     Text(
                       location,
@@ -99,6 +107,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         color: Colors.white
                       )
                     ),
+
+                    // edit profile
                     Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: IconButton(
@@ -115,7 +125,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-      
+
+          // logout button
           const SizedBox(height: 100),
           ElevatedButton.icon(
             icon: SvgPicture.asset(
@@ -144,14 +155,16 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ) 
           ),
-      
+
+          // delete account button
           const SizedBox(height: 30),
           const DeleteAccountButton(),
         ],
       ),
     );
   }
-
+  
+  // show pop-up dialog to edit user profile 
   Future editProfile(String id) => showDialog(context: context, builder: (context) => SingleChildScrollView(
     child: AlertDialog(
       content: Container(
@@ -161,6 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IconButton(
+                  // cross icon to pop the current context
                   icon: SvgPicture.asset(
                     'lib/images/icons/cross_icon.svg',
                   ),
@@ -180,6 +194,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ],
             ),
+
+            // edit username
             SizedBox(height: 40,),
             Text(
               'Username',
@@ -190,6 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             ProfilePageTextfield(controller: usernameController),
             
+            // edit location
             SizedBox(height: 30,),
             Text(
               'Location',
@@ -199,7 +216,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             ProfilePageTextfield(controller: locationController),
-    
+            
+            // update button
             SizedBox(height:50),
             ElevatedButton(
               onPressed: () async {

@@ -39,7 +39,10 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
     return ElevatedButton.icon(
       onPressed: () async {
         try{
+          // try sign in or sign up with google
           await AuthService().signInWithGoogle();
+
+          // default data for the user to be stored in firestore
           Map<String, dynamic> userInfoMap = {
             'Username': 'not-defined',
             'Email': FirebaseAuth.instance.currentUser!.email,
@@ -66,11 +69,15 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
           },
         ),
       ),
+
+      // Google logo
       icon: Image.asset(
         'lib/images/google.png',
         height: 55, 
         width: 55,
       ), 
+
+      // Text 'Google'
       label: Text(
         'Google ',
         style: TextStyle(

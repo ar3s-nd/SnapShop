@@ -20,7 +20,7 @@ class LoginPageTextField extends StatelessWidget{
       padding: EdgeInsets.symmetric(horizontal: 30.0),
       child: TextField(
         controller: controller,
-        obscureText: obscureText,
+        obscureText: obscureText, // if the textfield is used for passwords, obscuretext = true else false
         textAlign: TextAlign.center,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
@@ -33,7 +33,7 @@ class LoginPageTextField extends StatelessWidget{
           ),
           fillColor: Colors.white,
           filled: true,
-          hintText: hintText,
+          hintText: hintText, // show the hint text to hint the user to type either username/password/ confirm password.
           hintStyle: TextStyle(color: Colors.grey.shade600)
         )
       ),

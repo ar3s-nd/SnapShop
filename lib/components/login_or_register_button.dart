@@ -8,6 +8,7 @@ class LoginPageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
+    // return the button 
     return ElevatedButton(
       onPressed: onTap,
       style: ButtonStyle(
@@ -21,7 +22,7 @@ class LoginPageButton extends StatelessWidget {
         ),
       ),
 
-
+      // text could be either sign in or sign up
       child: SizedBox(
         height: 50,
         width: 200,

@@ -9,6 +9,7 @@ class AvailableOptions extends StatefulWidget {
 }
 
 // show the available options widget
+// configurations for laptops and mobiles but size for everything else
 class _AvailableOptionsState extends State<AvailableOptions> {
   bool isSelected = false;
 

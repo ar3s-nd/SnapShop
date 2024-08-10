@@ -176,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
             
-                // google button
+                // google sign in button
                 SizedBox(height: 30),
                 GoogleSignInButton(),
             
@@ -191,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(width: 4),
                     GestureDetector(
-                      onTap: widget.onTap,
+                      onTap: widget.onTap, // go to register page by toggling the pages
                       child: Text(
                         'Register Now',
                         style: TextStyle(color: Colors.blue[500])  

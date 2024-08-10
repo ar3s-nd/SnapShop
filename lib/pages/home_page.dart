@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // build all the products categories
+                // build all the product categories
                 _buildProductCategory(index: 0, name: "All Products"),
                 _buildProductCategory(index: 1, name: "Mobiles"),
                 _buildProductCategory(index: 2, name: "Laptop"),
@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildAllProducts() {
+  Widget _buildAllProducts() { // build list of all products
     return FutureBuilder<List<Product>>(
       future: ProductService().fetchProducts(),
       builder: (context, snapshot) {
@@ -107,7 +107,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildJackets() {
+  Widget _buildJackets() { // build a list of only jackets
     return FutureBuilder<List<Product>>(
       future: ProductService().fetchProductsByType('Jacket'),
       builder: (context, snapshot) {
@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSneakers() {
+  Widget _buildSneakers() { // build a list of only sneakers
     return FutureBuilder<List<Product>>(
       future: ProductService().fetchProductsByType('Sneaker'),
       builder: (context, snapshot) {
@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMobiles() {
+  Widget _buildMobiles() { // build a list of only mobiles
     return FutureBuilder<List<Product>>(
       future: ProductService().fetchProductsByType('Mobile'),
       builder: (context, snapshot) {
@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildLaptops() {
+  Widget _buildLaptops() { // build a list of only laptops
     return FutureBuilder<List<Product>>(
       future: ProductService().fetchProductsByType('Laptop'),
       builder: (context, snapshot) {
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAnimeTShirts() {
+  Widget _buildAnimeTShirts() { // build a list of only t-shirts 
     return FutureBuilder<List<Product>>(
       future: ProductService().fetchProductsByType('Anime T-shirt'),
       builder: (context, snapshot) {
@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildGridView(List<Product> products) {
+  Widget _buildGridView(List<Product> products) { // build the grid view to show the product card
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,

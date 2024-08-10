@@ -22,7 +22,7 @@ class _FavoritePageState extends State<FavoritePage> {
     _fetchFavoriteItems();
   }
 
-  Future<List<Product>> fetchProductsByIds(List<String> ids) async {
+  Future<List<Product>> fetchProductsByIds(List<String> ids) async { // get the list of products using product id from firestore
     List<Product> products = [];
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -49,7 +49,7 @@ class _FavoritePageState extends State<FavoritePage> {
     }
   }
 
-  Future<void> _removeFromFavorite(Product product) async {
+  Future<void> _removeFromFavorite(Product product) async { // removes the product being saved as favourite in firestore
     await _userService.removeFromFavorites(product.id);
     _fetchFavoriteItems();
   }
@@ -57,7 +57,7 @@ class _FavoritePageState extends State<FavoritePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // tell user list is empty if so else show the item in the list
+      // show the products saved as favourites  
       body: finalList.isNotEmpty
       ? Column(
         children: [
@@ -77,7 +77,8 @@ class _FavoritePageState extends State<FavoritePage> {
               ],
             ),
           ),
-          Expanded(
+          Expanded( 
+            // listview.builder to show the saved products list
             child: ListView.builder(
               itemCount: finalList.length,
               itemBuilder: (context, index){
@@ -148,7 +149,7 @@ class _FavoritePageState extends State<FavoritePage> {
           )
         ],
       )
-      // tell the user that the list is empty
+      // show that the favourites/saved list is empty
       : Center(
         child: Padding(
             padding: const EdgeInsets.only(
